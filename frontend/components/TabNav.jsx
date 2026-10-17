@@ -9,9 +9,10 @@ export default function TabNav({ activeTab, setActiveTab, counts }) {
     { id: 'vehicles', index: '02', label: 'FLEET INVENTORY', count: counts.vehicles },
     { id: 'renters', index: '03', label: 'CLIENT PROFILES', count: counts.renters },
     { id: 'rentals', index: '04', label: 'RENTALS & INSPECTION', count: counts.rentals },
-    { id: 'payments', index: '05', label: 'PAYMENT LEDGER' },
-    { id: 'costs', index: '06', label: 'WORKSHOP COSTS' },
-    { id: 'whatsapp', index: '07', label: 'WHATSAPP DIGEST' },
+    { id: 'calendar', index: '05', label: 'BOOKING CALENDAR', count: counts.reservations },
+    { id: 'payments', index: '06', label: 'PAYMENT LEDGER' },
+    { id: 'costs', index: '07', label: 'WORKSHOP COSTS' },
+    { id: 'whatsapp', index: '08', label: 'WHATSAPP DIGEST' },
   ];
 
   return (

@@ -15,7 +15,7 @@ export default function DashboardView({ onNavigate }) {
   const maintenanceVehicles = vehicles.filter((v) => v.status === 'MAINTENANCE').length;
   const utilizationPct = totalVehicles ? Math.round((rentedVehicles / totalVehicles) * 100) : 0;
 
-  const totalRevenue = rentals.reduce((sum, r) => sum + Number(r.totalAmount || 0), 0);
+  const totalRevenue = rentals.filter(r => ['ACTIVE', 'COMPLETED'].includes(r.status)).reduce((sum, r) => sum + Number(r.totalAmount || 0), 0);
   const totalWorkshopCosts = costs.reduce((sum, c) => sum + Number(c.amount || 0), 0);
   const totalFuelCosts = fuelLogs.reduce((sum, f) => sum + Number(f.totalCost || 0), 0);
   const totalOperatingCosts = totalWorkshopCosts + totalFuelCosts;
@@ -26,7 +26,7 @@ export default function DashboardView({ onNavigate }) {
 
   // Per-vehicle plot calculations
   const vehicleStats = vehicles.map((v) => {
-    const vRentals = rentals.filter((r) => r.vehiclePlate === v.plateNumber);
+    const vRentals = rentals.filter((r) => r.vehiclePlate === v.plateNumber && ['ACTIVE', 'COMPLETED'].includes(r.status));
     const vCosts = costs.filter((c) => c.vehiclePlate === v.plateNumber);
     const vFuel = fuelLogs.filter((f) => f.vehiclePlate === v.plateNumber);
 

@@ -29,8 +29,13 @@ const rentalSchema = new mongoose.Schema({
   dropInspection: inspectionPhotosSchema,
   status: {
     type: String,
-    enum: ['Active', 'Completed', 'Cancelled', 'Overdue'],
+    enum: ['Reserved', 'Active', 'Completed', 'Cancelled', 'Overdue'],
     default: 'Active'
+  },
+  bookingSource: {
+    type: String,
+    enum: ['Manual Counter', 'Online Self-Registration'],
+    default: 'Manual Counter'
   },
   paymentStatus: {
     type: String,

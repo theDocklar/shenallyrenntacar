@@ -1,6 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+
+import { reserve, checkIn, cancel, availability, duration } from '../lib/bookings.mjs';
 
 const StoreContext = createContext(null);
 
@@ -118,6 +120,13 @@ const INITIAL_DATA = {
   ],
   renters: [
     {
+      id: 'rnt-guest-demo', profileId: 'SR-0150', fullName: 'Sophie Taylor',
+      phone: '+44 7700 900123', email: 'sophie.taylor@london.co.uk',
+      isTourist: true, country: 'United Kingdom', address: 'Airport pickup',
+      source: 'Self-Registered (Online)', rentalsCount: 0,
+      documents: [{ type: 'Passport', number: 'DEMO-PASSPORT', verified: false }, { type: 'AA Ceylon IDP Permit', number: 'Pending', verified: false }]
+    },
+    {
       id: 'rnt-01',
       profileId: 'SR-0146',
       fullName: 'Nimal Perera',
@@ -180,6 +189,14 @@ const INITIAL_DATA = {
     }
   ],
   rentals: [
+    {
+      id: 'rent-reserved-demo', code: 'BK-2026-0043', vehiclePlate: 'WP CBA-7706',
+      renterId: 'SR-0150', renterName: 'Sophie Taylor', renterPhone: '+44 7700 900123',
+      days: 6, dailyRate: 22500, totalAmount: 135000, depositAmount: 35000,
+      paidAmount: 35000, status: 'RESERVED', startDate: '2026-10-21', endDate: '2026-10-27',
+      pickupInspection: null, dropInspection: null, bookingSource: 'Online Self-Registration',
+      notes: 'Flight UL 504 arrival at BIA. Baby car seat requested.'
+    },
     {
       id: 'rent-01',
       code: 'RNT-2026-0041',
@@ -348,6 +365,11 @@ const INITIAL_DATA = {
     }
   ],
   payments: [
+    {
+      id: 'pmt-reserved-demo', receiptNo: 'ADV-2026-0043', date: '2026-10-17',
+      renterName: 'Sophie Taylor', rentalCode: 'BK-2026-0043', method: 'Bank Transfer',
+      type: 'Booking Advance', amount: 35000, receivedBy: 'Dinuka Silva'
+    },
     {
       id: 'pmt-01',
       receiptNo: 'RCPT-2026-0090',
@@ -532,6 +554,7 @@ const INITIAL_DATA = {
 
 export function StoreProvider({ children }) {
   const [data, setData] = useState(INITIAL_DATA);
+  const dataRef = useRef(INITIAL_DATA);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -540,6 +563,7 @@ export function StoreProvider({ children }) {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.vehicles && parsed.vehicles.some((v) => v.id === 'veh-raize') && parsed.fuelLogs) {
+          dataRef.current = parsed;
           setData(parsed);
         } else {
           localStorage.setItem('shenaly_swiss_store_v3', JSON.stringify(INITIAL_DATA));
@@ -556,12 +580,19 @@ export function StoreProvider({ children }) {
   }, []);
 
   const persist = (updater) => {
-    setData((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      localStorage.setItem('shenaly_swiss_store_v3', JSON.stringify(next));
-      return next;
-    });
+    const next = typeof updater === 'function' ? updater(dataRef.current) : updater;
+    localStorage.setItem('shenaly_swiss_store_v3', JSON.stringify(next));
+    dataRef.current = next;
+    setData(next);
   };
+
+  const createReservation = (input, guest) => {
+    const result = reserve(dataRef.current, input, guest);
+    persist(result.data);
+    return result.booking;
+  };
+  const checkInReservation = (id) => persist(prev => checkIn(prev, id));
+  const cancelReservation = (id) => persist(prev => cancel(prev, id));
 
   const switchRole = (role) => {
     persist((prev) => ({
@@ -599,7 +630,7 @@ export function StoreProvider({ children }) {
 
   const addRenter = (renter) => {
     persist((prev) => {
-      const nextId = `SR-0${146 + prev.renters.length}`;
+      const nextId = `SR-${String(Math.max(145, ...prev.renters.map(r => Number(r.profileId.replace('SR-', '')) || 0)) + 1).padStart(4, '0')}`;
       return {
         ...prev,
         renters: [
@@ -617,7 +648,11 @@ export function StoreProvider({ children }) {
 
   const createRental = (rental) => {
     persist((prev) => {
+      duration(rental.startDate, rental.endDate);
+      const conflict = availability(prev, rental.vehiclePlate, rental.startDate, rental.endDate);
+      if (conflict) throw new Error(conflict);
       const vehicle = prev.vehicles.find(v => v.plateNumber === rental.vehiclePlate);
+      if (vehicle.status !== 'AVAILABLE') throw new Error('Vehicle must be available for dispatch.');
       const updatedVehicles = prev.vehicles.map(v => {
         if (v.plateNumber === rental.vehiclePlate) {
           return { ...v, status: 'RENTED', currentRenterId: rental.renterId };
@@ -658,7 +693,7 @@ export function StoreProvider({ children }) {
   const returnRental = (rentalId) => {
     persist((prev) => {
       const rental = prev.rentals.find(r => r.id === rentalId);
-      if (!rental) return prev;
+      if (!rental || rental.status !== 'ACTIVE') return prev;
 
       const updatedRentals = prev.rentals.map(r => {
         if (r.id === rentalId) {
@@ -692,6 +727,10 @@ export function StoreProvider({ children }) {
 
   const recordPayment = (payment) => {
     persist((prev) => {
+      const rental = prev.rentals.find(r => r.code === payment.rentalCode);
+      if (!rental || rental.status === 'CANCELLED') throw new Error('Select an open or completed rental.');
+      if (!Number.isFinite(Number(payment.amount)) || Number(payment.amount) <= 0) throw new Error('Payment must be greater than zero.');
+      if (rental.status === 'RESERVED' && Number(payment.amount) + (rental.paidAmount || 0) > rental.totalAmount + rental.depositAmount) throw new Error('Advance exceeds the outstanding rental and deposit total.');
       const newPayment = {
         id: `pmt-${Date.now()}`,
         receiptNo: `RCPT-2026-00${90 + prev.payments.length + 1}`,
@@ -755,7 +794,7 @@ export function StoreProvider({ children }) {
     localStorage.removeItem('shenaly_swiss_store_v1');
     localStorage.removeItem('shenaly_swiss_store_v2');
     localStorage.removeItem('shenaly_swiss_store_v3');
-    setData(INITIAL_DATA);
+    persist(INITIAL_DATA);
   };
 
   const exportDataJson = () => {
@@ -777,6 +816,9 @@ export function StoreProvider({ children }) {
         addVehicle,
         addRenter,
         createRental,
+        createReservation,
+        checkInReservation,
+        cancelReservation,
         returnRental,
         recordPayment,
         addCost,

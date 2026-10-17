@@ -33,7 +33,7 @@ export default function PaymentsView() {
     const rental = rentals.find((r) => r.code === formData.rentalCode);
     if (!rental) return;
 
-    recordPayment({
+    try { recordPayment({
       rentalCode: rental.code,
       renterName: rental.renterName,
       method: formData.method,
@@ -41,6 +41,7 @@ export default function PaymentsView() {
       amount: Number(formData.amount)
     });
 
+    } catch (err) { alert(err.message); return; }
     setIsRecordModalOpen(false);
   };
 
@@ -140,7 +141,7 @@ export default function PaymentsView() {
                     onChange={(e) => setFormData({ ...formData, rentalCode: e.target.value })}
                     className="w-full p-2 border border-[#0A0A0C]/20 outline-none"
                   >
-                    {rentals.map((r) => (
+                    {rentals.filter(r => r.status !== 'CANCELLED').map((r) => (
                       <option key={r.id} value={r.code}>
                         {r.code} — {r.renterName} ({r.vehiclePlate})
                       </option>

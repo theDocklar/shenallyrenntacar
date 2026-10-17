@@ -53,3 +53,16 @@ For immediate client demonstration with zero server setup:
 - **Backend**: Node.js, Express, Mongoose (MongoDB)
 - **Cloud Storage**: AWS S3 (secure pre-signed URLs for NIC/Passport/Driving Permits & Vehicle inspection photos)
 - **Messaging**: WhatsApp Business Cloud API (Meta)
+
+
+## Next.js operations app
+
+Run `npm install` and `npm run dev` from `frontend/`. Use the **Booking Calendar** tab for the monthly fleet schedule, manual reservations, advance payments, booking details, handover check-in, and cancellations. Available calendar dates can be clicked to prefill a booking. Rental date ranges use the return date as the next available pickup date.
+
+The header's **Guest Registration** link opens `/?view=register` (also `/?mode=guest`). Guests can register resident or tourist details, preview documents, choose dates and a vehicle, and save or share a confirmation voucher through WhatsApp. Open `/?view=calendar` to link directly to the fleet schedule.
+
+This is a browser-local demo: existing saved app records are preserved, and new reservations use the same local storage as rentals, renters, and payments. Reservations become active rentals only at handover. Cancellation retains payment history; refunds require separate reconciliation. Fresh demo data includes an example online reservation; existing browser data is not replaced.
+
+Guest submissions from another device are **not synchronized to staff**. Document selection previews files locally; files are not uploaded. Inspections remain simulated. Shared production bookings and secure document storage require backend implementation.
+
+Validation: run `npm test` and `npm run build` inside `frontend/`. For a separate build alongside a running development server, use `SHENALY_BUILD_DIR=.next-calendar npm run build` and the same environment variable with `npm run start`.

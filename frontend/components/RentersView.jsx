@@ -99,6 +99,7 @@ export default function RentersView() {
                   </td>
                   <td className="px-5 py-4">
                     <div className="font-bold text-[#0A0A0C] text-sm">{r.fullName}</div>
+                    {r.source && <div className="text-[10px] text-amber-800">{r.source}</div>}
                     <div className="text-[11px] text-[#6E7381]">{r.phone}</div>
                     <div className="text-[10px] text-[#6E7381]">{r.email}</div>
                   </td>
@@ -120,9 +121,9 @@ export default function RentersView() {
                           key={idx}
                           className="inline-flex items-center space-x-1 text-[10px] bg-white border border-[#0A0A0C]/15 px-2 py-0.5 text-[#0A0A0C]"
                         >
-                          <span className="w-1.5 h-1.5 bg-emerald-600 inline-block"></span>
+                          <span className={`w-1.5 h-1.5 inline-block ${doc.verified ? 'bg-emerald-600' : 'bg-amber-500'}`}></span>
                           <span className="font-bold">{doc.type}:</span>
-                          <span className="text-[#6E7381]">{doc.number}</span>
+                          <span className="text-[#6E7381]">{doc.number}{!doc.verified && ' · Pending verification'}</span>
                         </span>
                       ))}
                     </div>
@@ -177,9 +178,10 @@ export default function RentersView() {
                   <div><span className="text-[#6E7381]">STATED ADDRESS:</span> <span className="text-[#0A0A0C]">{selectedRenter.address}</span></div>
                 </div>
 
+                {selectedRenter.emergencyContact && <div className="p-3 border text-xs"><strong>Emergency contact:</strong> {selectedRenter.emergencyContact.name} · {selectedRenter.emergencyContact.phone} · {selectedRenter.emergencyContact.relationship}</div>}
                 <div>
                   <h4 className="font-bold text-[#0A0A0C] uppercase tracking-wider mb-2">
-                    Verified Identification Scans On S3 Vault
+                    Identification Documents (Demo Records)
                   </h4>
                   <div className="space-y-2">
                     {selectedRenter.documents.map((doc, idx) => (
@@ -192,7 +194,7 @@ export default function RentersView() {
                           </div>
                         </div>
                         <span className="text-[9px] bg-emerald-600 text-white font-bold px-2 py-0.5">
-                          VERIFIED
+                          {doc.verified ? 'VERIFIED' : 'PENDING VERIFICATION'}
                         </span>
                       </div>
                     ))}

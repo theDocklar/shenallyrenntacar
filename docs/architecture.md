@@ -10,10 +10,18 @@ The platform is designed to provide complete operational visibility over fleet u
 |                                                                        |
 |  [Admin & Staff Web Portal (React + Tailwind CSS)]                     |
 |  - Role-based views: Admin vs Staff                                    |
-|  - Real-time fleet status & Net-Profit calculations                    |
+|  - Real-time fleet status, Net-Profit & ROI engine                     |
+|  - Fleet Booking Calendar & Gantt timeline (early reservations)        |
+|  - Manual early booking creation & deposit recording                   |
 |  - Document verification viewer (NIC / DL / DMT temporary permits)    |
 |  - Pickup / Drop 6-angle photo inspection comparison                   |
 |  - WhatsApp weekly performance preview & trigger                       |
+|                                                                        |
+|  [Public Guest Front Link (Web Browser — No App Required)]             |
+|  - Mobile & desktop self-registration for local & foreign renters      |
+|  - Direct early vehicle reservation & date selection                   |
+|  - Document photo attachments & digital voucher confirmation card      |
+|  - One-click WhatsApp booking confirmation to Shenaly reservations     |
 +-----------------------------------+------------------------------------+
                                     | HTTPS / REST APIs
                                     v

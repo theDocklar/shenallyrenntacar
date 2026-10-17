@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import CalendarView from '../components/CalendarView';
+import { GuestPortal } from '../components/BookingForms';
 import Header from '../components/Header';
 import TabNav from '../components/TabNav';
 import DashboardView from '../components/DashboardView';
@@ -15,6 +17,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function OperationsPortal() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [guestMode, setGuestMode] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setGuestMode(params.get('view') === 'register' || params.get('mode') === 'guest');
+    if (params.get('view') === 'calendar') setActiveTab('calendar');
+  }, []);
   const { vehicles, renters, rentals, isLoaded } = useStore();
 
   if (!isLoaded) {
@@ -28,10 +36,13 @@ export default function OperationsPortal() {
     );
   }
 
+  if (guestMode) return <main className="max-w-3xl mx-auto p-6 space-y-6"><h1 className="text-2xl font-black">Shenaly Rent a Car · Guest registration</h1><GuestPortal /></main>;
+
   const counts = {
     vehicles: vehicles.length,
     renters: renters.length,
     rentals: rentals.length,
+    reservations: rentals.filter(r => r.status === 'RESERVED').length,
   };
 
   return (
@@ -57,7 +68,8 @@ export default function OperationsPortal() {
               {activeTab === 'dashboard' && <DashboardView onNavigate={(tab) => setActiveTab(tab)} />}
               {activeTab === 'vehicles' && <VehiclesView />}
               {activeTab === 'renters' && <RentersView />}
-              {activeTab === 'rentals' && <RentalsView />}
+              {activeTab === 'rentals' && <RentalsView onNavigate={setActiveTab} />}
+              {activeTab === 'calendar' && <CalendarView />}
               {activeTab === 'payments' && <PaymentsView />}
               {activeTab === 'costs' && <CostsView />}
               {activeTab === 'whatsapp' && <WhatsAppView />}

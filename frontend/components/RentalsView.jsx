@@ -5,7 +5,7 @@ import { useStore } from '../context/StoreContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Camera, CheckSquare, X, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
-export default function RentalsView() {
+export default function RentalsView({ onNavigate }) {
   const { rentals, vehicles, renters, createRental, returnRental } = useStore();
   const [selectedInspection, setSelectedInspection] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -47,10 +47,11 @@ export default function RentalsView() {
     const startDate = new Date().toISOString().slice(0, 10);
     const endDate = new Date(Date.now() + Number(formData.days) * 86400000).toISOString().slice(0, 10);
 
-    createRental({
+    try { createRental({
       vehiclePlate: vehicle.plateNumber,
       renterId: renter.profileId,
       renterName: renter.fullName,
+      renterPhone: renter.phone,
       days: Number(formData.days),
       dailyRate: vehicle.dailyRate,
       totalAmount: total,
@@ -60,6 +61,7 @@ export default function RentalsView() {
       startMileage: Number(formData.startMileage)
     });
 
+    } catch (err) { alert(err.message); return; }
     setIsCreateModalOpen(false);
   };
 
@@ -122,18 +124,18 @@ export default function RentalsView() {
                     LKR {r.totalAmount.toLocaleString()}
                   </td>
                   <td className="px-5 py-4 text-center">
-                    <button
+                    {r.pickupInspection ? <button
                       onClick={() => setSelectedInspection(r)}
                       className="px-2.5 py-1 border border-[#0A0A0C]/20 hover:border-[#FF4F00] text-[#0A0A0C] hover:text-[#FF4F00] text-[10px] font-bold uppercase transition-colors inline-flex items-center space-x-1"
                     >
                       <Camera size={12} />
                       <span>{r.dropInspection ? '6 PICKUP + 6 DROP' : '6 PICKUP PHOTOS'}</span>
-                    </button>
+                    </button> : <span className="text-gray-500">Pending handover</span>}
                   </td>
                   <td className="px-5 py-4 text-center">
                     <span
                       className={`text-[9px] px-2 py-0.5 font-bold uppercase tracking-wider border ${
-                        r.status === 'ACTIVE'
+                        r.status === 'RESERVED' ? 'border-amber-300 bg-amber-50 text-amber-900' : r.status === 'CANCELLED' ? 'border-gray-300 text-gray-500' : r.status === 'ACTIVE'
                           ? 'border-[#FF4F00]/30 bg-[#FFF5F0] text-[#FF4F00]'
                           : 'border-emerald-300 bg-emerald-50 text-emerald-800'
                       }`}
@@ -153,8 +155,10 @@ export default function RentalsView() {
                       >
                         RECORD RETURN
                       </button>
+                    ) : r.status === 'RESERVED' ? (
+                      <button onClick={() => onNavigate?.('calendar')} className="underline text-amber-800">VIEW BOOKING</button>
                     ) : (
-                      <span className="text-[10px] text-[#6E7381] font-semibold">RETURN COMPLETED</span>
+                      <span className="text-[10px] text-[#6E7381] font-semibold">{r.status === 'CANCELLED' ? 'CANCELLED' : 'RETURN COMPLETED'}</span>
                     )}
                   </td>
                 </tr>

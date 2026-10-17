@@ -129,7 +129,7 @@ export default function VehiclesView() {
       {/* Grid of Vehicles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {vehicles.map((v) => {
-          const vRentals = rentals.filter((r) => r.vehiclePlate === v.plateNumber);
+          const vRentals = rentals.filter((r) => r.vehiclePlate === v.plateNumber && ['ACTIVE', 'COMPLETED'].includes(r.status));
           const rev = vRentals.reduce((sum, r) => sum + Number(r.totalAmount), 0);
           
           const vCosts = costs.filter((c) => c.vehiclePlate === v.plateNumber);
@@ -259,7 +259,7 @@ export default function VehiclesView() {
       <AnimatePresence>
         {selectedVehicle && (() => {
           const v = selectedVehicle;
-          const vRentals = rentals.filter((r) => r.vehiclePlate === v.plateNumber);
+          const vRentals = rentals.filter((r) => r.vehiclePlate === v.plateNumber && ['ACTIVE', 'COMPLETED'].includes(r.status));
           const vCosts = costs.filter((c) => c.vehiclePlate === v.plateNumber);
           const vFuel = fuelLogs.filter((f) => f.vehiclePlate === v.plateNumber);
 

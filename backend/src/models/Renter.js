@@ -34,8 +34,11 @@ const renterSchema = new mongoose.Schema({
     relation: { type: String }
   },
   documents: [documentSchema],
-  activeRentalsCount: { type: Number, default: 0 },
-  totalRentalsCount: { type: Number, default: 0 },
+  source: {
+    type: String,
+    enum: ['Counter Registration', 'Self-Registered (Online)'],
+    default: 'Counter Registration'
+  },
   notes: { type: String }
 }, { timestamps: true });
 

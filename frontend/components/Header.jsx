@@ -46,7 +46,7 @@ export default function Header() {
       </div>
 
       {/* Main Structural Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 min-h-20 py-4 flex flex-wrap gap-4 items-center justify-between">
         {/* Brand & Identity */}
         <div className="flex items-center space-x-4">
           <div className="w-10 h-10 bg-[#FF4F00] flex items-center justify-center text-white font-black text-xl tracking-tighter shadow-sm">
@@ -65,11 +65,13 @@ export default function Header() {
           </div>
         </div>
 
+        <a href="/?view=register" className="text-xs font-mono text-[#FF4F00] underline mx-3">GUEST REGISTRATION</a>
+
         {/* Dummy Authentication Role Switcher */}
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap gap-3 items-center">
           <div className="border border-[#0A0A0C]/15 bg-[#F8F8F9] p-1 flex items-center space-x-1">
             <span className="text-[10px] font-mono uppercase tracking-wider text-[#6E7381] px-2 font-semibold">
-              SIMULATED AUTH:
+              DEMO AUTH:
             </span>
             <button
               onClick={() => switchRole('ADMIN')}

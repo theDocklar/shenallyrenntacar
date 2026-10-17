@@ -39,11 +39,12 @@
   - `docNumber`: String
   - `fileUrl`: String
   - `verified`: Boolean
+- `source`: Enum ['Counter Registration', 'Self-Registered (Online)']
 - `emergencyContact`: Object (`name`, `phone`, `relation`)
 
 ### 4. `Rental` (Booking & Inspection Records)
 - `_id`: ObjectId
-- `rentalCode`: String (Unique, e.g. `RNT-2026-0042`)
+- `rentalCode`: String (Unique, e.g. `RNT-2026-0042` or `BK-2026-0043`)
 - `renter`: ObjectId -> `Renter`
 - `vehicle`: ObjectId -> `Vehicle`
 - `startDate`: Date
@@ -58,7 +59,8 @@
 - `endMileage`: Number
 - `pickupInspection`: Object (`front`, `rear`, `leftSide`, `rightSide`, `interior`, `odometer`, `timestamp`, `notes`)
 - `dropInspection`: Object (`front`, `rear`, `leftSide`, `rightSide`, `interior`, `odometer`, `timestamp`, `notes`)
-- `status`: Enum ['Active', 'Completed', 'Cancelled', 'Overdue']
+- `status`: Enum ['Reserved', 'Active', 'Completed', 'Cancelled', 'Overdue']
+- `bookingSource`: Enum ['Manual Counter', 'Online Self-Registration']
 - `paymentStatus`: Enum ['Unpaid', 'Partially Paid', 'Fully Paid']
 
 ### 5. `VehicleCost` (Operating Costs & Service Bills)
